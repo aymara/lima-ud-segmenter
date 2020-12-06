@@ -9,17 +9,17 @@ config = {
             {
                 'start': 0,
                 'len': 1,
-                'min_freq': 6
+                'min_freq': 0.5
             },
             {
                 'start': -1,
                 'len': 2,
-                'min_freq': 10
+                'min_freq': 1
             },
             {
                 'start': -1,
                 'len': 3,
-                'min_freq': 30
+                'min_freq': 2
             }
         ],
         'tags': [

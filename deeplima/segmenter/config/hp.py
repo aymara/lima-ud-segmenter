@@ -12,10 +12,11 @@ def guess_hp(args, config, ds):
         embd_dim = int(math.ceil(math.sqrt(math.sqrt(dict_size))))
         if embd_dim % 2 == 1:
             embd_dim += 1
-        config['encoding']['ngrams'][i]['embd_size'] = embd_dim
+        config['encoding']['ngrams'][i]['embd_size'] = embd_dim + 4
         input_width += embd_dim
 
     hidden_dim = input_width if input_width % 2 == 0 else input_width + 1
+    hidden_dim *= 2
 
     config['model']['rnn'][0]['fw_dim'] = hidden_dim
     config['model']['rnn'][0]['bw_dim'] = hidden_dim

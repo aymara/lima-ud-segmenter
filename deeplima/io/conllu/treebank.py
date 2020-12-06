@@ -47,6 +47,8 @@ class Treebank:
             file_name = '%s-%s.txt' % (prefix, n)
             try:
                 plain_text = open(file_name, "r", encoding="utf-8").read()
+                # optional
+                #plain_text = plain_text.replace('\n', ' ').replace('\r', ' ')
             except Exception as e:
                 sys.stderr.write('Can\'t open file %s\n' % file_name)
                 raise e

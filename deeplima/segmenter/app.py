@@ -13,9 +13,9 @@ def run():
     parser.add_argument('-u', '--ud-path', help='Path to Universal Dependencies treebanks')
     parser.add_argument('-c', '--config', help='Configuration name', default='default')
     parser.add_argument('-p', '--guess-hp', action='store_true', help='Guess hyperparameters', default=False)
-    parser.add_argument('-l', '--iter-len', help='Length of one iteration', default=50)
+    parser.add_argument('-l', '--iter-len', help='Length of one iteration', type=int, default=50)
     parser.add_argument('-m', '--max-iter-wo-improvement', help='Max iterations without dev accuracy improvement',
-                        default=100)
+                        type=int, default=100)
     parser.add_argument('-o', '--output-dir', help='Output directory')
     parser.add_argument('-f', '--file-prefix', help='Prefix for output files', default='segmenter')
 

@@ -42,16 +42,29 @@ class BiRnnCrf:
         return loss, accuracy, time.time() - before
 
     def evaluate(self, batch):
-        loss, accuracy, before = None, None, time.time()
+        loss, accuracy, match, total, before = None, None, None, None, time.time()
 
-        loss, accuracy = self._session.run([
+        loss, accuracy, match, total = self._session.run([
             self._metrics['loss'],
-            self._metrics['accuracy']
+            self._metrics['accuracy'],
+            self._metrics['match'],
+            self._metrics['total']
         ],
             self._prepare_feed_dict(batch, {})
         )
 
-        return loss, accuracy, time.time() - before
+        return loss, accuracy, match, total, time.time() - before
+
+    def predict(self, batch):
+        loss, accuracy, match, total, before = None, None, None, None, time.time()
+
+        [pred] = self._session.run([
+            self._output['predictions']
+        ],
+            self._prepare_feed_dict(batch, {})
+        )
+
+        return pred, time.time() - before
 
     def config(self):
         return self._config
@@ -222,7 +235,7 @@ class BiRnnCrf:
 
                 dense_output = tf.layers.dense(dense_input,
                                                layer['dim'],
-                                               activation=tf.nn.relu,
+                                               #activation=tf.nn.relu,
                                                kernel_initializer=tf.contrib.layers.xavier_initializer()
                                                )
 
@@ -275,6 +288,7 @@ class BiRnnCrf:
         self._metrics['match'] = tf.reduce_sum(
             tf.cast(tf.logical_and(tf.equal(self._output['predictions'], self._input['gold']), mask), tf.int32))
         self._metrics['accuracy'] = tf.truediv(self._metrics['match'], total_words)
+        self._metrics['total'] = total_words
 
         self._nodes = [self._dense_output.name.split(':')[0], self._crf.name.split(':')[0]]
 
@@ -308,6 +322,8 @@ class BiRnnCrf:
             return rnn_output
 
     def print_model_statistics(self):
+        for layer in self._config['model']['rnn']:
+            print('rnn layer dim = %d' % layer['fw_dim'])
         total_parameters = 0
         for variable in tf.compat.v1.trainable_variables():
             # shape is an array of tf.Dimension

@@ -97,14 +97,26 @@ def train(args):
     print('Summary:\nBest dev accuracy = %.6f on iter #%d' % (best_accuracy, best_iter))
 
 
-def evaluate_model(model, ds):
+def evaluate_model(model, ds, outside_of_tf = False):
     loss = []
-    accuracy = []
+    match = 0
+    total = 0
     before = time.time()
 
-    for batch in ds.prediction_batch(model.config()['hp']['max_seq_len'], model.config()['hp']['batch_size'], 0):
-        l, a, d = model.evaluate(batch)
-        loss.append(l)
-        accuracy.append(a)
+    if outside_of_tf:
+        for batch in ds.prediction_batch(model.config()['hp']['max_seq_len'], model.config()['hp']['batch_size'], 0):
+            p, d = model.predict(batch)
+            for i in range(p.shape[0]):
+                for j in range(batch['len'][i]):
+                    if batch['gold'][i,j] == p[i,j]:
+                        match += 1
+                    total += 1
+    else:
+        for batch in ds.prediction_batch(model.config()['hp']['max_seq_len'], model.config()['hp']['batch_size'], 0):
+            l, a, m, t, d = model.evaluate(batch)
+            loss.append(l)
+            match += m
+            total += t
 
-    return float(sum(loss)) / len(loss), float(sum(accuracy)) / len(accuracy), time.time() - before
+    avg_loss = 0 if len(loss) == 0 else float(sum(loss)) / len(loss)
+    return avg_loss, float(match) / total, time.time() - before
